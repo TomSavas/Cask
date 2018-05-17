@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Core.Extensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -7,37 +8,28 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Core.Components
 {
-    public class Sprite : IDrawable
+    public class Sprite : ComponentDecorator
     {
-        public bool Enabled { get; set; }
-        public uint Layer { get; set; }
-        public bool IsVisible { get; set; }
-
-        public ICollection<Type> RequiredComponents { get; } = new List<Type> {typeof(Transform)};
-        public IComponentDependencies Dependencies { get; } = new ComponentDependencies();
-        public bool IsLoaded { get; private set; }
-
         private string _textureTitle;
         private Texture2D _spriteTexture2D;
 
-        public Sprite(string textureTitle, uint layer = 0, bool enabled = true)
+        public Sprite(IComponent baseComponent, string textureTitle, uint layer = 0, bool enabled = true) : base(baseComponent)
         {
+            RequiredComponents = new ReadOnlyCollection<Type>(new List<Type>{typeof(Transform)});
             _textureTitle = textureTitle;
             Layer = layer;
             Enabled = enabled;
         }
         
-        public void Update(GameTime gameTime) {}
-
-        public bool LoadContent(ContentManager contentManager)
+        public override bool LoadContent(ContentManager contentManager)
         {
             _spriteTexture2D = contentManager.Load<Texture2D>(_textureTitle);
-            IsLoaded = true;
+            IsLoaded = true && base.LoadContent(contentManager);
 
             return IsLoaded;
         }
 
-        public void Draw(GameTime gameTime, Camera camera)
+        public override void Draw(GameTime gameTime, Camera camera)
         {
             if (Enabled)
             {
@@ -63,6 +55,8 @@ namespace Core.Components
                     0f);
                 
                 spriteBatch.End();
+                
+                base.Draw(gameTime, camera);
             }
         }
     }

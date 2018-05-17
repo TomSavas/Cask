@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using Core.Events;
@@ -10,23 +11,18 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Core.Components
 {
-    public class MouseInputHandler : IComponent, ISubscriber<MouseState>
+    public class MouseInputHandler : ComponentDecorator, ISubscriber<MouseState>
     {
-        public ICollection<Type> RequiredComponents { get; } = new List<Type>();
-        public IComponentDependencies Dependencies { get; } = new ComponentDependencies();
         public IDictionary<MouseState, ICollection<Action<IComponentDependencies, MouseState>>> InputHandlers = new Dictionary<MouseState, ICollection<Action<IComponentDependencies, MouseState>>>();
         
-        public bool Enabled { get; set; }
-        public bool IsLoaded => true;
-
-        public MouseInputHandler(ICollection<Type> requiredComponents, bool enabled = true)
+        public MouseInputHandler(IComponent baseComponent, params Type[] requiredComponents) : this(baseComponent, requiredComponents.ToList()) {}
+        
+        public MouseInputHandler(IComponent baseComponent, IList<Type> requiredComponents, bool enabled = true) : base(baseComponent)
         {
             InputHandlers = new Dictionary<MouseState, ICollection<Action<IComponentDependencies, MouseState>>>();
-            RequiredComponents = requiredComponents;
+            RequiredComponents = new ReadOnlyCollection<Type>(requiredComponents);
             Enabled = enabled;
         }
-        
-        public MouseInputHandler(params Type[] requiredComponents) : this(requiredComponents.ToList()) {}
 
         public void OnEventHandler(MouseState mouseState)
         {
@@ -36,10 +32,6 @@ namespace Core.Components
                 if(state.LeftButton == mouseState.LeftButton || state.RightButton == mouseState.RightButton || state.MiddleButton == mouseState.MiddleButton)
                     foreach (var inputHandler in InputHandlers[state])
                         inputHandler(Dependencies, mouseState); 
-
         }
-
-        public bool LoadContent(ContentManager contentManager) => true;
-        public void Update(GameTime gameTime) {}
     }
 }

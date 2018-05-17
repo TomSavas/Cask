@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using Core.Events;
@@ -10,23 +11,18 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Core.Components
 {
-    public class KeyboardInputHandler : IComponent, ISubscriber<KeyboardState>
+    public class KeyboardInputHandler : ComponentDecorator, ISubscriber<KeyboardState>
     {
-        public ICollection<Type> RequiredComponents { get; }
-        public IComponentDependencies Dependencies { get; } = new ComponentDependencies();
         public IDictionary<KeyboardState, ICollection<Action<IComponentDependencies>>> InputHandlers = new Dictionary<KeyboardState, ICollection<Action<IComponentDependencies>>>();
         
-        public bool Enabled { get; set; }
-        public bool IsLoaded => true;
-
-        public KeyboardInputHandler(ICollection<Type> requiredComponents, bool enabled = true)
+        public KeyboardInputHandler(IComponent baseComponent, params Type[] requiredComponents) : this(baseComponent, requiredComponents.ToList()) {}
+        
+        public KeyboardInputHandler(IComponent baseComponent, IList<Type> requiredComponents, bool enabled = true) : base(baseComponent)
         {
             InputHandlers = new Dictionary<KeyboardState, ICollection<Action<IComponentDependencies>>>();
-            RequiredComponents = requiredComponents;
+            RequiredComponents = new ReadOnlyCollection<Type>(requiredComponents.ToList());
             Enabled = enabled;
         }
-
-        public KeyboardInputHandler(params Type[] requiredComponents) : this(requiredComponents.ToList()) {}
 
         public void OnButtonDown(Keys key, Action<IComponentDependencies> onButtonDownAction)
         {
@@ -52,8 +48,5 @@ namespace Core.Components
                     foreach (var inputHandler in InputHandlers[state])
                         inputHandler(Dependencies); 
         }
-
-        public bool LoadContent(ContentManager contentManager) => true;
-        public void Update(GameTime gameTime) {}
     }
 }

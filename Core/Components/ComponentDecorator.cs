@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
-using System.Xml.Schema;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 
@@ -9,26 +9,28 @@ namespace Core.Components
 {
     public class ComponentDecorator : IComponent
     {
-        public ICollection<Type> RequiredComponents => _underlyingComponent.RequiredComponents;
+        public IReadOnlyCollection<Type> RequiredComponents { get; protected set; }
         public IComponentDependencies Dependencies => _underlyingComponent.Dependencies;
-        public bool Enabled
-        {
-            get => _underlyingComponent.Enabled;
-            set => _underlyingComponent.Enabled = value;
-        }
-        public bool IsLoaded => _underlyingComponent.IsLoaded;
+        public bool IsLoaded { get; protected set; }
+        public bool Enabled { get => _underlyingComponent.Enabled; set => _underlyingComponent.Enabled = value; }
+        public bool IsVisible { get => _underlyingComponent.IsVisible; set => _underlyingComponent.IsVisible = value; }
+        public uint Layer { get => _underlyingComponent.Layer; set => _underlyingComponent.Layer = value; }
+
+        protected IComponent _underlyingComponent;
+
+        public ComponentDecorator(IComponent baseComponent, params IComponent[] dependencies) : this(baseComponent, new List<Type>(), dependencies) {}
         
-        private IComponent _underlyingComponent;
-
-        public ComponentDecorator(IComponent component, ICollection<Type> requiredComponents, params IComponent[] dependencies)
+        public ComponentDecorator(IComponent baseComponent, IList<Type> requiredComponentsFromParent, params IComponent[] dependencies)
         {
-            _underlyingComponent = component;
-            requiredComponents.AsParallel().ForAll(comp => RequiredComponents.Add(comp));
-            dependencies.AsParallel().ForAll(dep => Dependencies.Add(dep));
+            _underlyingComponent = baseComponent;
+            RequiredComponents = new ReadOnlyCollection<Type>(requiredComponentsFromParent);
+            dependencies.AsParallel().ForAll(dep => Dependencies.Add(dep.GetType(), dep));
         }
 
-        public bool LoadContent(ContentManager contentManager) => _underlyingComponent.LoadContent(contentManager);
+        public virtual void Update(GameTime gameTime) => _underlyingComponent.Update(gameTime);
 
-        public void Update(GameTime gameTime) => _underlyingComponent.Update(gameTime);
+        public virtual void Draw(GameTime gameTime, Camera camera) => _underlyingComponent.Draw(gameTime, camera);
+
+        public virtual bool LoadContent(ContentManager contentManager) => _underlyingComponent.LoadContent(contentManager);
     }
 }

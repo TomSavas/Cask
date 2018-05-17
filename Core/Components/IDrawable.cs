@@ -2,7 +2,7 @@
 
 namespace Core.Components
 {
-    public interface IDrawable : IComponent
+    public interface IDrawable
     {
         uint Layer { get; set; }
         bool IsVisible { get; set; }

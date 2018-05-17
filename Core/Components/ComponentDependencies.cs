@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Core.Components
 {
@@ -25,6 +26,11 @@ namespace Core.Components
             else
             //FIX: eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeech
                 throw new Exception("Dependency broken");
+        }
+
+        public ICollection<IComponent> GetAll()
+        {
+            return _dependencies.Values.Select(componentRef => componentRef.Target as IComponent).ToList();
         }
 
         public bool Remove<T>() where T : class, IComponent

@@ -4,9 +4,9 @@ using Microsoft.Xna.Framework;
 
 namespace Core.Components
 {
-    public interface IComponent : ILoadable
+    public interface IComponent : ILoadable, IDrawable
     {
-        ICollection<Type> RequiredComponents { get; }
+        IReadOnlyCollection<Type> RequiredComponents { get; }
         IComponentDependencies Dependencies { get; }
         bool Enabled { get; set; }
 

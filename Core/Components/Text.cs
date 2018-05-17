@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Core.Extensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -7,39 +8,33 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Core.Components
 {
-    public class Text : IDrawable
+    public class Text : ComponentDecorator
     {
-        public bool Enabled { get; set; }
-        public uint Layer { get; set; }
-        public bool IsVisible { get; set; }
-        public string TextContent { get; set; }
+        public string TextContent { get; set; } = "DEFAULT TEXT";
         public Color Color { get; set; } = Color.White;
 
-        public ICollection<Type> RequiredComponents { get; } = new List<Type> {typeof(Transform)};
-        public IComponentDependencies Dependencies { get; } = new ComponentDependencies();
         public bool IsLoaded { get; private set; }
 
         private string _fontTitle;
         private SpriteFont _font;
         
-        public Text(string fontTitle, uint layer = 0, bool enabled = true)
+        public Text(IComponent baseComponent, string fontTitle, uint layer = 0, bool enabled = true) : base(baseComponent)
         {
+            RequiredComponents = new ReadOnlyCollection<Type>(new List<Type>{typeof(Transform)});
             _fontTitle = fontTitle;
             Layer = layer;
             Enabled = enabled;
         }
         
-        public void Update(GameTime gameTime) {}
-
-        public bool LoadContent(ContentManager contentManager)
+        public override bool LoadContent(ContentManager contentManager)
         {
             _font = contentManager.Load<SpriteFont>(_fontTitle);
-            IsLoaded = true;
+            IsLoaded = true && base.LoadContent(contentManager);
 
             return IsLoaded;
         }
 
-        public void Draw(GameTime gameTime, Camera camera)
+        public override void Draw(GameTime gameTime, Camera camera)
         {
             if (Enabled)
             {

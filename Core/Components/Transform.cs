@@ -1,20 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using Core.Extensions;
-using Core.GameObjects;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
+﻿using Microsoft.Xna.Framework;
 
 namespace Core.Components
 {
-    public class Transform : IComponent
+    public class Transform : ComponentDecorator
     {
-        public ICollection<Type> RequiredComponents { get; } = new List<Type>();
-        public IComponentDependencies Dependencies { get; } = new ComponentDependencies();
-        
-        public bool Enabled { get; set; }
-        public bool IsLoaded => true;
-
         public Vector3 Position
         {
             get
@@ -90,19 +79,19 @@ namespace Core.Components
         private Matrix _rotation;
         private Vector3 _scale;
         
-        public Transform(bool enabled = true)
-            : this(Vector3.Zero, enabled) {}
+        public Transform(IComponent baseComponent, bool enabled = true)
+            : this(baseComponent, Vector3.Zero, enabled) {}
 
-        public Transform(Vector3 position, bool enabled = true)
-            : this(position, Vector3.One, enabled) {}
+        public Transform(IComponent baseComponent, Vector3 position, bool enabled = false)
+            : this(baseComponent, position, Vector3.One, enabled) {}
 
-        public Transform(Vector3 position, Vector3 scale, bool enabled = true)
-            : this(position, scale, Matrix.Identity, enabled) {}
+        public Transform(IComponent baseComponent, Vector3 position, Vector3 scale, bool enabled = true)
+            : this(baseComponent, position, scale, Matrix.Identity, enabled) {}
 
-        public Transform(Vector3 position, Matrix rotation, bool enabled = true)
-            : this(position, Vector3.One, rotation, enabled) {}
+        public Transform(IComponent baseComponent, Vector3 position, Matrix rotation, bool enabled = true)
+            : this(baseComponent, position, Vector3.One, rotation, enabled) {}
         
-        public Transform(Vector3 position, Vector3 scale, Matrix rotation, bool enabled = true)
+        public Transform(IComponent baseComponent, Vector3 position, Vector3 scale, Matrix rotation, bool enabled = true) : base(baseComponent)
         {
             Position = position;
             Rotation = rotation;
@@ -115,9 +104,5 @@ namespace Core.Components
             Dependencies.Remove<Transform>();
             Dependencies.Add<Transform>(transform);
         }
-
-        
-        public bool LoadContent(ContentManager contentManager) => true;
-        public void Update(GameTime gameTime) {}
     }
 }

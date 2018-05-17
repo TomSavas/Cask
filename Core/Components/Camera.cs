@@ -1,19 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
+using System.Collections.ObjectModel;
 using Core.Extensions;
-using Core.GameObjects;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 
 namespace Core.Components
 {
-    public class Camera : IComponent
+    public class Camera : ComponentDecorator
     {
-        public bool Enabled { get; set; }
-        public ICollection<Type> RequiredComponents { get; } = new List<Type> {typeof(Transform)};
-        public IComponentDependencies Dependencies { get; } = new ComponentDependencies();
-        
         public GraphicsDeviceManager GraphicsDeviceManager { get; }
         public bool IsPerspecive { get; set; }
         public float FOV { get; set; } = MathHelper.PiOver4;
@@ -22,7 +16,6 @@ namespace Core.Components
         public float AspectRatio => GraphicsDeviceManager.GraphicsDevice.Viewport.AspectRatio;
         public float Width => GraphicsDeviceManager.GraphicsDevice.Viewport.Width;
         public float Height => GraphicsDeviceManager.GraphicsDevice.Viewport.Height;
-        public bool IsLoaded => true;
         
         public Matrix ViewMatrix
         {
@@ -46,10 +39,11 @@ namespace Core.Components
             }
         }
 
-        public Camera(GraphicsDeviceManager graphicsDeviceManager, bool isPerspective = true)
+        public Camera(IComponent baseComponent, GraphicsDeviceManager graphicsDeviceManager, bool isPerspective = true) : base(baseComponent)
         {
+            RequiredComponents = new ReadOnlyCollection<Type>(new List<Type>{typeof(Transform)});
             GraphicsDeviceManager = graphicsDeviceManager;
-            isPerspective = isPerspective;
+            IsPerspecive = isPerspective;
         }
 
         public Vector2 ScreenPointToWorldPoint(Vector2 screenPoint)
@@ -62,8 +56,5 @@ namespace Core.Components
             //TODO: Might want some more intricate raycasting later.
             return new Vector3(ScreenPointToWorldPoint(screenPoint.ToVector2()), 0);
         }
-
-        public bool LoadContent(ContentManager contentManager) => true;
-        public void Update(GameTime gameTime) {}
     }
 }
