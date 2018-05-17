@@ -8,11 +8,12 @@ namespace Core.GameObjects
 {
     public interface IGameObject : ILoadable
     {
-        string Name { get; }
-        IReadOnlyCollection<Components.IDrawable> Drawables { get; }
-        IReadOnlyDictionary<Type, IComponent> Components { get; }
+        string Name { get; set; }
 
+        T GetComponent<T>() where T : class, IComponent;
+        IReadOnlyDictionary<Type, IComponent> GetComponents();
         void AddComponent<T>(T component) where T : class, IComponent;
+        void AddComponents(ICollection<IComponent> components);
         bool RemoveComponent<T>(T component) where T : class, IComponent;
         
         void Update(GameTime gameTime);
