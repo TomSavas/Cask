@@ -49,7 +49,7 @@ namespace Core.Managers
             
             foreach (var gameObject in gameObjects)
             {
-                foreach (var drawable in gameObject.Drawables)
+                foreach (var drawable in gameObject.GetComponents().Values)
                 {
                     if (drawable.Layer + 1 > layeredDrawables.Count)
                     {
