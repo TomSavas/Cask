@@ -11,20 +11,33 @@ using Microsoft.Xna.Framework.Content;
 
 namespace Core.Factories
 {
-    public class BasicGameElementFactory
+    public class BasicGameElementFactory : IGameElementFactory
     {
+        public IComponent MakeComponent()
+        {
+            return new BasicComponent();
+        }
+
+        public IGameObject MakeGameObject(string name = "GameObject")
+        {
+            return new BasicGameObject(name, new List<IComponent>(), new ComponentDependencyResolver());
+        }
+        
         public IGameObject MakeCamera(GraphicsDeviceManager graphicsDeviceManager)
         {
-            return new GameObject("Camera",
-                new List<IComponent> {new Transform(), new Camera(graphicsDeviceManager)});
+            var gameObject = MakeGameObject("Camera");
+            gameObject.AddComponent<Transform>(new Transform(MakeComponent()));
+            gameObject.AddComponent<Camera>(new Camera(MakeComponent(), graphicsDeviceManager));
+
+            return gameObject;
         }
         
         public IScene MakeScene(ContentManager contentManager, GraphicsDeviceManager graphicsDeviceManager)
         {
             var camera = MakeCamera(graphicsDeviceManager);
-            var drawingManager = new DrawingManager(camera.Components.Get<Camera>());
+            var drawingManager = new DrawingManager(camera.GetComponent<Camera>());
             
-            return new Scene(new List<IGameObject> {camera},
+            return new BasicScene(new List<IGameObject> {camera},
                 new Dictionary<Type, IManager> {{typeof(IDrawingManager), drawingManager}},
                 new EventAggregator(),
                 contentManager);
