@@ -43,10 +43,10 @@ namespace Core.Scenes
             _underlyingScene = scene;
         }
 
-        public bool LoadContent(ContentManager contentManager) => _underlyingScene.LoadContent(contentManager);
+        public virtual bool LoadContent(ContentManager contentManager) => _underlyingScene.LoadContent(contentManager);
 
-        public void Update(GameTime gameTime) => _underlyingScene.Update(gameTime);
+        public virtual void Update(GameTime gameTime) => _underlyingScene.Update(gameTime);
 
-        public void Draw(GameTime gameTime) => _underlyingScene.Draw(gameTime);
+        public virtual void Draw(GameTime gameTime) => _underlyingScene.Draw(gameTime);
     }
 }
