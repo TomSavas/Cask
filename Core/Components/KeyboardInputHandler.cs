@@ -1,52 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using Core.Events;
-using Core.GameObjects;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Input;
 
 namespace Core.Components
 {
     public class KeyboardInputHandler : ComponentDecorator, ISubscriber<KeyboardState>
     {
-        public IDictionary<KeyboardState, ICollection<Action<IComponentDependencies>>> InputHandlers = new Dictionary<KeyboardState, ICollection<Action<IComponentDependencies>>>();
+        public ICollection<KeyValuePair<Func<KeyboardState, bool>, Action<KeyboardState, IComponentDependencies> > >  InputHandlers;
         
         public KeyboardInputHandler(IComponent baseComponent, params Type[] requiredComponents) : this(baseComponent, requiredComponents.ToList()) {}
         
         public KeyboardInputHandler(IComponent baseComponent, IList<Type> requiredComponents, bool enabled = true) : base(baseComponent)
         {
-            InputHandlers = new Dictionary<KeyboardState, ICollection<Action<IComponentDependencies>>>();
-            RequiredComponents = new ReadOnlyCollection<Type>(requiredComponents.ToList());
+            InputHandlers =
+                new List<KeyValuePair<Func<KeyboardState, bool>, Action<KeyboardState, IComponentDependencies>>>();
+            RequiredComponents = new ReadOnlyCollection<Type>(requiredComponents);
             Enabled = enabled;
         }
 
-        public void OnButtonDown(Keys key, Action<IComponentDependencies> onButtonDownAction)
+        public void AddEventListener(Func<KeyboardState, bool> conditionCheck, Action<KeyboardState, IComponentDependencies> actionToExecute)
         {
-            OnButtonsDown(new List<Keys> {key}, onButtonDownAction);
-        }
-        
-        public void OnButtonsDown(ICollection<Keys> keys, Action<IComponentDependencies> onButtonDownAction)
-        {
-            if (!Enabled) return;
-            
-            InputHandlers.Add(new KeyboardState(keys.ToArray()), new List<Action<IComponentDependencies>>
-            {
-                onButtonDownAction
-            });
+            InputHandlers.Add(new KeyValuePair<Func<KeyboardState, bool>, Action<KeyboardState, IComponentDependencies>>(conditionCheck, actionToExecute));
         }
 
         public void OnEventHandler(KeyboardState keyboardState)
         {
             if (!Enabled) return;
             
-            foreach (var state in InputHandlers.Keys)
-                if (keyboardState.GetPressedKeys().Any(key => state.GetPressedKeys().Contains(key)))
-                    foreach (var inputHandler in InputHandlers[state])
-                        inputHandler(Dependencies); 
+            foreach (var inputHandler in InputHandlers)
+                if (inputHandler.Key(keyboardState))
+                        inputHandler.Value(keyboardState, Dependencies); 
         }
     }
 }
