@@ -10,25 +10,25 @@ namespace Core.Components
 {
     public class Text : ComponentDecorator
     {
-        public string TextContent { get; set; } = "DEFAULT TEXT";
+        public string TextContent { get; set; }
         public Color Color { get; set; } = Color.White;
-
+        public SpriteFont Font { get; private set; }
         public bool IsLoaded { get; private set; }
 
         private string _fontTitle;
-        private SpriteFont _font;
         
-        public Text(IComponent baseComponent, string fontTitle, uint layer = 0, bool enabled = true) : base(baseComponent)
+        public Text(IComponent baseComponent, string fontTitle, string textContent = "DEFAULT TEXT", uint layer = 0, bool enabled = true) : base(baseComponent)
         {
             RequiredComponents = new ReadOnlyCollection<Type>(new List<Type>{typeof(Transform)});
             _fontTitle = fontTitle;
+            TextContent = textContent;
             Layer = layer;
             Enabled = enabled;
         }
         
         public override bool LoadContent(ContentManager contentManager)
         {
-            _font = contentManager.Load<SpriteFont>(_fontTitle);
+            Font = contentManager.Load<SpriteFont>(_fontTitle);
             IsLoaded = true && base.LoadContent(contentManager);
 
             return IsLoaded;
@@ -47,7 +47,7 @@ namespace Core.Components
                             Matrix.CreateTranslation(0, 0, 0);
                 
                 spriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, cameraTransformMatrix);
-                spriteBatch.DrawString(_font,
+                spriteBatch.DrawString(Font,
                     TextContent,
                     Dependencies.Get<Transform>().Position.ToVector2(),
                     Color,
