@@ -13,8 +13,7 @@ namespace Core.Managers
         public DrawingManager(Camera camera, bool enabled = true)
         {
             Enabled = enabled;
-            Cameras = new List<Camera>();
-            Cameras.Add(camera);
+            Cameras = new List<Camera> {camera};
         }
         
         public void Update(GameTime gameTime) {}
@@ -26,9 +25,9 @@ namespace Core.Managers
             Clear();
             
             var layeredDrawables = GetLayeredDrawables(gameObjects);
-            for (int i = layeredDrawables.Count; i > 0; i--)
+            for (int i = 0; i < layeredDrawables.Count; i++)
             {
-                layeredDrawables[i-1]
+                layeredDrawables[i]
                     .ForEach(drawable => Draw(gameTime, drawable));
             }
         }
