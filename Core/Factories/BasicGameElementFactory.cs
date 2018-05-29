@@ -8,6 +8,7 @@ using Core.Managers;
 using Core.Scenes;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
+using MonoGame.Extended.ViewportAdapters;
 
 namespace Core.Factories
 {
@@ -27,7 +28,7 @@ namespace Core.Factories
         {
             var gameObject = MakeGameObject("Camera");
             gameObject.AddComponent<Transform>(new Transform(MakeComponent()));
-            gameObject.AddComponent<Camera>(new Camera(MakeComponent(), graphicsDeviceManager));
+            gameObject.AddComponent<Camera>(new Camera(MakeComponent(), new DefaultViewportAdapter(graphicsDeviceManager.GraphicsDevice)));
 
             return gameObject;
         }
