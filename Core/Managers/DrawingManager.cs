@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using Core.Components;
 using Core.GameObjects;
 using Microsoft.Xna.Framework;
@@ -39,7 +37,7 @@ namespace Core.Managers
         {
             foreach (var camera in Cameras)
             {
-                camera.GraphicsDeviceManager.GraphicsDevice.Clear(Color.Black);
+                camera.GraphicsDevice.Clear(Color.Black);
             }
         }
 

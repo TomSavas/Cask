@@ -24,7 +24,7 @@ namespace Core.Components
         public override bool LoadContent(ContentManager contentManager)
         {
             _spriteTexture2D = contentManager.Load<Texture2D>(_textureTitle);
-            IsLoaded = true && base.LoadContent(contentManager);
+            IsLoaded = base.LoadContent(contentManager);
 
             return IsLoaded;
         }
@@ -33,15 +33,9 @@ namespace Core.Components
         {
             if (Enabled)
             {
-                var spriteBatch = new SpriteBatch(camera.GraphicsDeviceManager.GraphicsDevice);
+                var spriteBatch = new SpriteBatch(camera.GraphicsDevice);
 
-                var cameraTransform = camera.Dependencies.Get<Transform>();
-                var cameraTransformMatrix = Matrix.Identity*
-                            Matrix.CreateTranslation(-cameraTransform.Position.X, -cameraTransform.Position.Y, 0)*
-                            Matrix.CreateRotationZ(cameraTransform.Rotation.ToEulerAngles().Z)*
-                            Matrix.CreateTranslation(0, 0, 0);
-                
-                spriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, cameraTransformMatrix);
+                spriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, camera.GetViewMatrix());
                 spriteBatch.Draw(_spriteTexture2D,
                     new Rectangle((int) Dependencies.Get<Transform>().Position.ToVector2().X,
                         (int) Dependencies.Get<Transform>().Position.ToVector2().Y,
