@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using Cask.Extensions;
+﻿using Cask.Extensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -13,9 +10,8 @@ namespace Cask.Components
         private string _textureTitle;
         private Texture2D _spriteTexture2D;
 
-        public Sprite(IComponent baseComponent, string textureTitle, uint layer = 0, bool enabled = true) : base(baseComponent)
+        public Sprite(IComponent baseComponent, string textureTitle, uint layer = 0, bool enabled = true) : base(baseComponent, typeof(Transform))
         {
-            RequiredComponents = new ReadOnlyCollection<Type>(new List<Type>{typeof(Transform)});
             _textureTitle = textureTitle;
             Layer = layer;
             Enabled = enabled;
@@ -24,7 +20,9 @@ namespace Cask.Components
         public override bool LoadContent(ContentManager contentManager)
         {
             _spriteTexture2D = contentManager.Load<Texture2D>(_textureTitle);
-            IsLoaded = base.LoadContent(contentManager);
+            
+            IsLoaded = _spriteTexture2D != null;
+            IsLoaded &= base.LoadContent(contentManager);
 
             return IsLoaded;
         }
@@ -37,13 +35,13 @@ namespace Cask.Components
 
                 spriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, camera.GetViewMatrix());
                 spriteBatch.Draw(_spriteTexture2D,
-                    new Rectangle((int) Dependencies.Get<Transform>().Position.ToVector2().X,
-                        (int) Dependencies.Get<Transform>().Position.ToVector2().Y,
-                        (int) (_spriteTexture2D.Width * Dependencies.Get<Transform>().Scale.ToVector2().X),
-                        (int) (_spriteTexture2D.Width * Dependencies.Get<Transform>().Scale.ToVector2().Y)),
+                    new Rectangle((int) Dependencies.GetComponent<Transform>().Position.ToVector2().X,
+                        (int) Dependencies.GetComponent<Transform>().Position.ToVector2().Y,
+                        (int) (_spriteTexture2D.Width * Dependencies.GetComponent<Transform>().Scale.ToVector2().X),
+                        (int) (_spriteTexture2D.Width * Dependencies.GetComponent<Transform>().Scale.ToVector2().Y)),
                     null,
                     Color.White,
-                    Dependencies.Get<Transform>().Rotation.ToEulerAngles().Z,
+                    Dependencies.GetComponent<Transform>().Rotation.ToEulerAngles().Z,
                     Vector2.Zero, 
                     SpriteEffects.None,
                     0f);

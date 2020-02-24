@@ -7,7 +7,7 @@ namespace Cask.Components
     public interface IComponent : ILoadable, IDrawable
     {
         IReadOnlyCollection<Type> RequiredComponents { get; }
-        IComponentDependencies Dependencies { get; }
+        IComponentContainer Dependencies { get; }
         bool Enabled { get; set; }
 
         void Update(GameTime gameTime);

@@ -29,19 +29,15 @@ namespace Cask.Scenes
         
         public virtual bool LoadContent(ContentManager contentManager)
         {
-            IsLoaded = GameObjects
-                .Select(gameObject => gameObject.LoadContent(contentManager))
-                .All(contentLoaded => contentLoaded);
+            IsLoaded = true;
+            foreach (var gameObject in GameObjects)
+                IsLoaded &= gameObject.LoadContent(contentManager);
 
-            /*
-            IsLoaded = IsLoaded &&
-                       !GameManagers.Values
-                           .Where(type => typeof(ILoadable).IsAssignableFrom(type.GetType()))
-                           .Cast<ILoadable>()
-                           .Where(loadable => loadable.IsLoaded)
-                           .Select(loadable => loadable.LoadContent(contentManager))
-                           .Any(response => response == false);
-           */
+            foreach (var gameManager in GameManagers.Values)
+            {
+                if (gameManager is ILoadable loadableGameManager && !loadableGameManager.IsLoaded)
+                    IsLoaded &= loadableGameManager.LoadContent(contentManager);
+            }
 
             return IsLoaded;
         }

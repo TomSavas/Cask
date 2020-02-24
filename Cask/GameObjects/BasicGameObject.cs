@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Cask.Components;
@@ -8,70 +7,72 @@ using Microsoft.Xna.Framework.Content;
 
 namespace Cask.GameObjects
 {
-    public class BasicGameObject : IGameObject
+    public class BasicGameObject : ComponentMap, IGameObject
     {
         public string Name { get; set; }
         public bool IsLoaded { get; private set; }
         
-        private Dictionary<Type, IComponent> _components = new Dictionary<Type, IComponent>();
-        private IComponentDependencyResolver _componentDependencyResolver;
-
-        public BasicGameObject(string name, ICollection<IComponent> components, IComponentDependencyResolver componentDependencyResolver)
+        public BasicGameObject(string name)
         {
             Name = name;
-            _componentDependencyResolver = componentDependencyResolver;
-            AddComponents(components);
         }
         
-        public T GetComponent<T>() where T : class, IComponent => _components[typeof(T)] as T;
-
-        IReadOnlyDictionary<Type, IComponent> IGameObject.GetComponents()
+        public override IComponentContainer AddComponent<T>(T component)
         {
-            return new ReadOnlyDictionary<Type, IComponent>(_components);
-        }
-
-        public void AddComponent<T>(T component) where T : class, IComponent
-        {
-            _componentDependencyResolver.ResolveDependencies(component, _components);
-            _components.Add(component.GetType(), component);
-        }
-
-        public void AddComponents(ICollection<IComponent> components)
-        {
-            _components = components.Aggregate(_components, (aggregate, element) =>
+            foreach (var dependencyType in component.RequiredComponents)
             {
-                aggregate.Add(element.GetType(), element);
-                return aggregate;
-            });
-
-            foreach (var component in _components.Values)
-            {
-                _componentDependencyResolver.ResolveDependencies(component, _components);
+                component.Dependencies.AddComponent(GetComponent(dependencyType));
             }
+
+            // does it work this way?
+            return base.AddComponent<T>(component);
         }
 
-        public bool RemoveComponent<T>(T component) where T : class, IComponent
+        public override IComponentContainer AddComponent(IComponent component)
         {
-            _componentDependencyResolver.RemoveDependencies(component, _components);
-            return _components.Remove(component.GetType());
+            foreach (var dependencyType in component.RequiredComponents)
+            {
+                component.Dependencies.AddComponent(GetComponent(dependencyType));
+            }
+
+            // does it work this way?
+            return base.AddComponent(component);
         }
 
+        public override IComponentContainer AddComponents(IEnumerable<IComponent> components)
+        {
+            foreach (var component in components)
+            {
+                AddComponent(component);
+            }
+            
+            return this;
+        }
+
+        public override bool RemoveComponent<T>()
+        {
+            // If any dependency is broken, refuse to delete the component
+            if(_components.Any(x => x.Value.RequiredComponents.Contains(typeof(T))))
+                return false;
+
+            return base.RemoveComponent<T>();
+        }
         
         public virtual bool LoadContent(ContentManager contentManager)
         {
-            IsLoaded = !_components.Values
-                .OfType<ILoadable>()
-                .Where(loadable => !loadable.IsLoaded)
-                .AsParallel()
-                .Select(loadable => loadable.LoadContent(contentManager))
-                .Any(response => response == false);
+            IsLoaded = true;
+            foreach (var component in GetComponents())
+            {
+                if(component is ILoadable loadable && !loadable.IsLoaded)
+                    IsLoaded &= loadable.LoadContent(contentManager);
+            }
 
             return IsLoaded;
         }
-
+        
         public virtual void Update(GameTime gameTime)
         {
-            foreach (var component in _components.Values)
+            foreach (var component in GetComponents())
             {
                 component.Update(gameTime);
             }

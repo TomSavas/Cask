@@ -46,7 +46,7 @@ namespace Cask.Managers
             
             foreach (var gameObject in gameObjects)
             {
-                foreach (var drawable in gameObject.GetComponents().Values)
+                foreach (var drawable in gameObject.GetComponents())
                 {
                     if (drawable.Layer + 1 > layeredDrawables.Count)
                     {

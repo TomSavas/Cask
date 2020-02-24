@@ -8,9 +8,9 @@ namespace Cask.Components
         {
             get
             {
-                if (Dependencies.Contains<Transform>())
+                if (Dependencies.ContainsComponent<Transform>())
                 {
-                    var parentTransform = Dependencies.Get<Transform>();
+                    var parentTransform = Dependencies.GetComponent<Transform>();
 
                     return new Vector3(_position.X * parentTransform.Scale.X + parentTransform.Position.X,
                         _position.Y * parentTransform.Scale.Y + parentTransform.Position.Y,
@@ -23,9 +23,9 @@ namespace Cask.Components
             }
             set
             {
-                if (Dependencies.Contains<Transform>())
+                if (Dependencies.ContainsComponent<Transform>())
                 {
-                    var parentTransform = Dependencies.Get<Transform>();
+                    var parentTransform = Dependencies.GetComponent<Transform>();
 
                     _position = new Vector3(value.X - parentTransform.Position.X,
                         value.Y - parentTransform.Position.Y,
@@ -41,9 +41,9 @@ namespace Cask.Components
         {
             get
             {
-                if (Dependencies.Contains<Transform>())
+                if (Dependencies.ContainsComponent<Transform>())
                 {
-                    var parentTransform = Dependencies.Get<Transform>();
+                    var parentTransform = Dependencies.GetComponent<Transform>();
                     
                     return Matrix.Multiply(parentTransform.Rotation, _rotation);
                 }
@@ -58,9 +58,9 @@ namespace Cask.Components
         {
             get
             {
-                if (Dependencies.Contains<Transform>())
+                if (Dependencies.ContainsComponent<Transform>())
                 {
-                    var parentTransform = Dependencies.Get<Transform>();
+                    var parentTransform = Dependencies.GetComponent<Transform>();
                 
                     return new Vector3(
                         parentTransform.Scale.X * _scale.X,
@@ -101,8 +101,8 @@ namespace Cask.Components
 
         public void SetTransformParent(Transform transform)
         {
-            Dependencies.Remove<Transform>();
-            Dependencies.Add<Transform>(transform);
+            Dependencies.RemoveComponent<Transform>();
+            Dependencies.AddComponent<Transform>(transform);
         }
     }
 }

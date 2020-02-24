@@ -1,5 +1,4 @@
-﻿using Cask.Attributes;
-using Cask.Extensions;
+﻿using Cask.Extensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
@@ -7,26 +6,23 @@ using MonoGame.Extended.ViewportAdapters;
 
 namespace Cask.Components
 {
-    [RequiredComponents(typeof(Transform))]
     public class Camera : ComponentDecorator
     {
         public ViewportAdapter ViewportAdapter;
         public GraphicsDevice GraphicsDevice => ViewportAdapter.GraphicsDevice;
         
-        //private MonoGame.Extended.Camera2D _camera2D;
         private OrthographicCamera _camera2D;
         
-        public Camera(IComponent baseComponent, ViewportAdapter viewportAdapter) : base(baseComponent)
+        public Camera(IComponent baseComponent, ViewportAdapter viewportAdapter) : base(baseComponent, typeof(Transform))
         {
-            //RequiredComponents = new ReadOnlyCollection<Type>(new List<Type>{typeof(Transform)});
             ViewportAdapter = viewportAdapter;
             _camera2D = new OrthographicCamera(viewportAdapter);
         }
 
         public override void Update(GameTime gameTime)
         {
-            _camera2D.Position = Dependencies.Get<Transform>().Position.ToVector2();
-            _camera2D.Rotation = Dependencies.Get<Transform>().Rotation.ToEulerAngles().Z;
+            _camera2D.Position = Dependencies.GetComponent<Transform>().Position.ToVector2();
+            _camera2D.Rotation = Dependencies.GetComponent<Transform>().Rotation.ToEulerAngles().Z;
             //Dependencies.Get<Transform>().Scale = new Vector3((float)(Math.Sin(gameTime.TotalGameTime.TotalSeconds) * 0.2 + 1),
             //    (float)(Math.Cos(gameTime.TotalGameTime.TotalSeconds) * 0.2 + 1), 1f);//(float) (Math.Sin(gameTime.TotalGameTime.TotalSeconds) * 0.3 + 1);
             base.Update(gameTime);
@@ -42,7 +38,7 @@ namespace Cask.Components
         
         public Matrix GetViewMatrix(Vector2 parallaxFactor)
         {
-            var transform = Dependencies.Get<Transform>();
+            var transform = Dependencies.GetComponent<Transform>();
 
             return Matrix.CreateTranslation(new Vector3(
                        -transform.Position.ToVector2() * parallaxFactor, 0.0f)) *

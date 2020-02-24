@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using Cask.Attributes;
-using Cask.Extensions;
+﻿using Cask.Extensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -18,9 +14,9 @@ namespace Cask.Components
 
         private string _fontTitle;
         
-        public Text(IComponent baseComponent, string fontTitle, string textContent = "DEFAULT TEXT", uint layer = 0, bool enabled = true) : base(baseComponent)
+        public Text(IComponent baseComponent, string fontTitle, string textContent = "DEFAULT TEXT", uint layer = 0,
+            bool enabled = true) : base(baseComponent, typeof(Transform))
         {
-            RequiredComponents = new ReadOnlyCollection<Type>(new List<Type>{typeof(Transform)});
             _fontTitle = fontTitle;
             TextContent = textContent;
             Layer = layer;
@@ -30,7 +26,9 @@ namespace Cask.Components
         public override bool LoadContent(ContentManager contentManager)
         {
             Font = contentManager.Load<SpriteFont>(_fontTitle);
-            IsLoaded = base.LoadContent(contentManager);
+            
+            IsLoaded = Font != null;
+            IsLoaded &= base.LoadContent(contentManager);
 
             return IsLoaded;
         }
@@ -44,11 +42,11 @@ namespace Cask.Components
                 spriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, camera.GetViewMatrix());
                 spriteBatch.DrawString(Font,
                     TextContent,
-                    Dependencies.Get<Transform>().Position.ToVector2(),
+                    Dependencies.GetComponent<Transform>().Position.ToVector2(),
                     Color,
-                    Dependencies.Get<Transform>().Rotation.ToEulerAngles().Z,
+                    Dependencies.GetComponent<Transform>().Rotation.ToEulerAngles().Z,
                     Vector2.Zero, 
-                    Dependencies.Get<Transform>().Scale.ToVector2(), 
+                    Dependencies.GetComponent<Transform>().Scale.ToVector2(), 
                     SpriteEffects.None, 
                     Layer);
                 

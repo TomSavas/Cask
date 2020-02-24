@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using Cask.Events;
 using Core.Events;
 using Microsoft.Xna.Framework.Input;
 
@@ -10,21 +7,18 @@ namespace Cask.Components
 {
     public class MouseInputHandler : ComponentDecorator, ISubscriber<MouseState>
     {
-        public ICollection<KeyValuePair<Func<MouseState, bool>, Action<MouseState, IComponentDependencies> > >  InputHandlers;
+        public ICollection<KeyValuePair<Func<MouseState, bool>, Action<MouseState, IComponentContainer> > >  InputHandlers;
         
-        public MouseInputHandler(IComponent baseComponent, params Type[] requiredComponents) : this(baseComponent, requiredComponents.ToList()) {}
-        
-        public MouseInputHandler(IComponent baseComponent, IList<Type> requiredComponents, bool enabled = true) : base(baseComponent)
+        public MouseInputHandler(IComponent baseComponent, bool enabled = true) : base(baseComponent, typeof(Transform), typeof(Text))
         {
             InputHandlers =
-                new List<KeyValuePair<Func<MouseState, bool>, Action<MouseState, IComponentDependencies>>>();
-            RequiredComponents = new ReadOnlyCollection<Type>(requiredComponents);
+                new List<KeyValuePair<Func<MouseState, bool>, Action<MouseState, IComponentContainer>>>();
             Enabled = enabled;
         }
 
-        public void AddEventListener(Func<MouseState, bool> conditionCheck, Action<MouseState, IComponentDependencies> actionToExecute)
+        public void AddEventListener(Func<MouseState, bool> conditionCheck, Action<MouseState, IComponentContainer> actionToExecute)
         {
-            InputHandlers.Add(new KeyValuePair<Func<MouseState, bool>, Action<MouseState, IComponentDependencies>>(conditionCheck, actionToExecute));
+            InputHandlers.Add(new KeyValuePair<Func<MouseState, bool>, Action<MouseState, IComponentContainer>>(conditionCheck, actionToExecute));
         }
         
         public void OnEventHandler(MouseState mouseState)

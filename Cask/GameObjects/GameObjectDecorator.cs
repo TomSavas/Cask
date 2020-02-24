@@ -24,24 +24,33 @@ namespace Cask.GameObjects
         {
             _underlyingGameObject = baseGameObject;
             AddComponents(components);
-            Name = Name;
+            Name = name;
         }
 
         public virtual T GetComponent<T>() where T : class, IComponent => 
             _underlyingGameObject.GetComponent<T>();
+        
+        public virtual IComponent GetComponent(Type componentType) => 
+            _underlyingGameObject.GetComponent(componentType);
 
-        public virtual IReadOnlyDictionary<Type, IComponent> GetComponents() =>
+        public virtual IReadOnlyCollection<IComponent> GetComponents() =>
             _underlyingGameObject.GetComponents();
 
-        public virtual void AddComponent<T>(T component) where T : class, IComponent =>
+        public virtual IComponentContainer AddComponent<T>(T component) where T : class, IComponent =>
             _underlyingGameObject.AddComponent<T>(component);
+
+        public virtual IComponentContainer AddComponent(IComponent component) =>
+            _underlyingGameObject.AddComponent(component);
         
-        public virtual void AddComponents(ICollection<IComponent> components) =>
+        public virtual IComponentContainer AddComponents(IEnumerable<IComponent> components) =>
             _underlyingGameObject.AddComponents(components);
 
-        public virtual bool RemoveComponent<T>(T component) where T : class, IComponent =>
-            _underlyingGameObject.RemoveComponent<T>(component);
-        
+        public virtual bool RemoveComponent<T>() where T : class, IComponent =>
+            _underlyingGameObject.RemoveComponent<T>();
+
+        public bool ContainsComponent<T>() where T : class, IComponent =>
+            _underlyingGameObject.ContainsComponent<T>();
+
         public virtual bool LoadContent(ContentManager contentManager) => 
             _underlyingGameObject.LoadContent(contentManager);
 

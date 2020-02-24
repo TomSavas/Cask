@@ -21,7 +21,7 @@ namespace Core.Factories
 
         public IGameObject MakeGameObject(string name = "GameObject")
         {
-            return new BasicGameObject(name, new List<IComponent>(), new ComponentDependencyResolver());
+            return new BasicGameObject(name);
         }
         
         public IGameObject MakeCamera(GraphicsDeviceManager graphicsDeviceManager)

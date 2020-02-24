@@ -17,7 +17,6 @@ namespace Cask
 	{
 		GraphicsDeviceManager graphics;
 		SpriteBatch spriteBatch;
-		private Texture2D texture;
 		private SpriteFont font;
 		
 		private ISceneManager _sceneManager;
@@ -45,23 +44,23 @@ namespace Cask
 			gameScene.GameManagers.Add(typeof(KeyboardInputManager), new KeyboardInputManager(gameScene.EventAggregator));
 			gameScene.GameManagers.Add(typeof(MouseInputManager), new MouseInputManager(gameScene.EventAggregator));
 			
-            var keyboardInputHandler = new KeyboardInputHandler(basicGameElementFactory.MakeComponent(), typeof(Transform));
+            var keyboardInputHandler = new KeyboardInputHandler(basicGameElementFactory.MakeComponent());
 			
 			keyboardInputHandler.AddEventListener(
 				keyboardState => keyboardState.IsKeyDown(Keys.Up), 
-				(keyboardState, components) => components.Get<Transform>().Position += new Vector3(0, -2, 0));
+				(keyboardState, components) => components.GetComponent<Transform>().Position += new Vector3(0, -2, 0));
             
 			keyboardInputHandler.AddEventListener(
 				keyboardState => keyboardState.IsKeyDown(Keys.Down), 
-				(keyboardState, components) => components.Get<Transform>().Position += new Vector3(0, 2, 0));
+				(keyboardState, components) => components.GetComponent<Transform>().Position += new Vector3(0, 2, 0));
 			
 			keyboardInputHandler.AddEventListener(
 				keyboardState => keyboardState.IsKeyDown(Keys.Left), 
-				(keyboardState, components) => components.Get<Transform>().Position += new Vector3(-2, 0, 0));
+				(keyboardState, components) => components.GetComponent<Transform>().Position += new Vector3(-2, 0, 0));
 			
 			keyboardInputHandler.AddEventListener(
 				keyboardState => keyboardState.IsKeyDown(Keys.Right), 
-				(keyboardState, components) => components.Get<Transform>().Position += new Vector3(2, 0, 0));
+				(keyboardState, components) => components.GetComponent<Transform>().Position += new Vector3(2, 0, 0));
 			
             gameScene.EventAggregator.SubsribeEvent(keyboardInputHandler);
 			gameScene.GameObjects.First(go => go.Name == "Camera")
@@ -80,7 +79,6 @@ namespace Cask
 		{
 			// Create a new SpriteBatch, which can be used to draw textures.
 			spriteBatch = new SpriteBatch(GraphicsDevice);
-			texture = Content.Load<Texture2D>("MarioSprite");
 			font = Content.Load<SpriteFont>("Terminus");
 
 			_sceneManager.LoadScene("MainScene", false);
@@ -107,13 +105,12 @@ namespace Cask
 		/// <param name="gameTime">Provides a snapshot of timing values.</param>
 		protected override void Draw(GameTime gameTime)
 		{
-			/*
 			draw++;
 			_sceneManager.Draw(gameTime);
 			
 			spriteBatch.Begin();
 			spriteBatch.DrawString(font,
-                    $"SPF: {gameTime.ElapsedGameTime}\nDraw call count: {draw}\nUpdate call count: {update}",
+                    $"SPF: {gameTime.ElapsedGameTime.Milliseconds} ms\nDraw call count: {draw}\nUpdate call count: {update}",
                     Vector2.Zero,
                     Color.White,
                     0,
@@ -123,10 +120,9 @@ namespace Cask
                     0);
 			spriteBatch.End();
 			base.Draw(gameTime);
-			*/
 			
-			GraphicsDevice.Clear(Color.Fuchsia);
-			base.Draw(gameTime);
+			//GraphicsDevice.Clear(Color.Fuchsia);
+			//base.Draw(gameTime);
 		}
 	}
 }
